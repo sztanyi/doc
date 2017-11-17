@@ -3,6 +3,7 @@
 =TITLE class utf8
 
 =SUBTITLE Mutable uint8 buffer for utf8 binary data
+
 X<|utf, class>
     class utf8 does Blob[uint8] is repr('VMArray') {}
 
