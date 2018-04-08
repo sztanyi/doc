@@ -112,6 +112,7 @@ bigrat
 bindkey
 bindoruse
 binmode
+bitbucket
 bitwise
 bom
 bool
@@ -365,6 +366,7 @@ filerenamed
 filesystem
 filetest
 filetests
+findmethod
 flatmap
 flipflop
 fmt
@@ -377,6 +379,7 @@ frontend
 fsvo
 ftfy
 func
+gaz
 gc
 gcc
 gcd
@@ -413,6 +416,7 @@ getsockname
 getsockopt
 getuid
 gid
+gists
 github
 github's
 gitlab
@@ -644,6 +648,7 @@ mkdir
 moar
 moarvm
 moarvm's
+modulehow
 moduleloader
 mojo
 mojolicious
@@ -1050,6 +1055,7 @@ smartmatching
 smtp
 socketpair
 solitaryquantifier
+someauthor
 sourcecode
 spdx
 spectest
@@ -1129,6 +1135,7 @@ superclass
 superclasses
 superglobals
 superset
+svg
 sym
 symlink
 symlinked
@@ -1262,6 +1269,7 @@ usr
 utc
 utf
 util
+utils
 utime
 vals
 valueidentifier
