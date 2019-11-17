@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("exception")
 
 =TITLE class X::Syntax::InfixInTermPosition
 
@@ -11,12 +11,12 @@ operator instead.
 
 For example
 
-=for code :skip-test
+=for code :skip-test<compile time error>
 1, => 2;
 
 dies with
 
-=for code :skip-test
+=for code :lang<text>
 ===SORRY!===
 Preceding context expects a term, but found infix => instead
 

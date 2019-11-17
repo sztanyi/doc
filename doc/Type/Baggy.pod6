@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("role") :category("composite")
 
 =TITLE role Baggy
 
@@ -6,8 +6,8 @@
 
     role Baggy does QuantHash { }
 
-A role for collections of weighted objects.  See L<Bag>, L<BagHash>, and
-L<Mixy>.
+A role for collections of weighted objects.  See L<Bag|/type/Bag>, L<BagHash|/type/BagHash>, and
+L<Mixy|/type/Mixy>.
 
 =head1 Methods
 
@@ -38,7 +38,7 @@ by the values corresponding to each key. Unlike C<pick>, it works only on mutabl
 structures, e.g. L<BagHash|/type/BagHash>. Use of C<grab> on an immutable structure results in an
 C<X::Immutable> exception. If C<*> is passed as C<$count>, or C<$count> is greater than
 or equal to the L<total|#method total> of the invocant, then C<total> elements from the
-invocant are returned in a random sequence.
+invocant are returned in a random sequence; i.e. they are returned shuffled.
 
 Grabbing decrements the grabbed key's weight by one (deleting the key
 when it reaches 0). By definition, the C<total> of the invocant also decreases by one, so the
@@ -63,7 +63,7 @@ Defined as:
 
 Returns a C<Pair> or a C<Seq> of C<Pair>s depending on the version of the method
 being invoked. Each C<Pair> returned has an element of the invocant as its key and the
-elements weight as its value. Unlike L<pickpairs>, it works only on mutable structures,
+elements weight as its value. Unlike L<pickpairs|/routine/pickpairs>, it works only on mutable structures,
 e.g. L<BagHash|/type/BagHash>. Use of C<grabpairs> on 'an immutable structure results in
 an C<X::Immutable> exception. If C<*> is passed as C<$count>, or C<$count> is greater
 than or equal to the number of L<elements|#method elems> of the invocant, then all
@@ -331,7 +331,7 @@ Defined as:
 
 Returns a C<Seq> of the keys of the invocant, with each key multiplied by its
 weight. Note that C<kxxv> only works for C<Baggy> types which have integer
-weights, i.e. L<Bag> and L<BagHash>.
+weights, i.e. L<Bag|/type/Bag> and L<BagHash|/type/BagHash>.
 
     my $breakfast = bag <spam eggs spam spam bacon>;
     say $breakfast.kxxv.sort;                         # OUTPUT: «(bacon eggs spam spam spam)␤»
@@ -437,13 +437,13 @@ Defined as:
 
     method ACCEPTS($other --> Bool:D)
 
-Used in smart-matching if the right-hand side is a C<Baggy>.
+Used in smartmatching if the right-hand side is a C<Baggy>.
 
-If the right hand side is the type object, i.e. C<Baggy>, the method
+If the right-hand side is the type object, i.e. C<Baggy>, the method
 returns C<True> if C<$other> L<does|/routine/does#class_Mu> C<Baggy>
 otherwise C<False> is returned.
 
-If the right hand side is a C<Baggy> object, C<True> is returned only if
+If the right-hand side is a C<Baggy> object, C<True> is returned only if
 C<$other> has the same elements, with the same weights, as the invocant.
 
     my $breakfast = bag <eggs bacon>;

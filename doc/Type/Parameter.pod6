@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("basic")
 
 =TITLE class Parameter
 
@@ -15,7 +15,7 @@ and call C<.params> on it to obtain a list of the Parameters.
     my $param = $sig.params[0];
     say $param.type;              # OUTPUT: «Str()␤»
 
-See L<Signature> for more information, and also for an explanation
+See L<Signature|/type/Signature> for more information, and also for an explanation
 on what most of the concepts related to parameters mean.
 
 =head1 Methods
@@ -44,28 +44,33 @@ if the parameter is anonymous.
 
 This "sigil" is actually an introspection used to help determine
 the normal binding style of a parameter, if it has not been altered
-through a L<trait|/type/Signature#Parameter_Traits_and_Modifiers>.
+through a L<trait|/type/Signature#Parameter_traits_and_modifiers>.
 
 =begin table
-   Will bind to           Default behavior
- =  ======================  ================================================================
- C<$>  Scalar                  Generate new Scalar, use instead of Scalar in argument, if any
- C<@>  Positional              Bind directly to the argument
- C<@>  PositionalBindFailover  If binding failed, call argument's .cache method, bind to result
- C<%>  Associative             Bind directly to the argument
- C<&>  Callable                Bind directly to the argument
- C<|>  (anything)              Bind to all remaining arguments, make new Capture if needed
- C<\>  (anything)              Bind directly to the argument, keep existing Scalar, if any
+Sigil | Will bind to           | Default behavior
+===================================================
+ $    | Scalar                 | Generate new Scalar, use instead of Scalar in argument, if any
+ @    | Positional             | Bind directly to the argument
+ @    | PositionalBindFailover | If binding failed, call argument's .cache method, bind to result
+ %    | Associative            | Bind directly to the argument
+ &    | Callable               | Bind directly to the argument
+ \    | (anything)             | Bind directly to the argument, keep existing Scalar, if any
 =end table
+
+Also, C<|> will bind to all remaining arguments and make new C<Capture> if needed.
 
 =head2 method type
 
-Returns the L<nominal type constraint|/type/Signature#Type_Constraints> of
+Returns the L<nominal type constraint|/type/Signature#Type_constraints> of
 the parameter.
+
+=head2 method coerce_type
+
+Returns the L<coercion type|/syntax/Coercion%20type> of the parameter.
 
 =head2 method constraints
 
-Returns L<additional constraints|/type/Signature#Type_Constraints> on the
+Returns L<additional constraints|/type/Signature#Type_constraints> on the
 parameter (usually as an C<all>-Junction).
 
 =head2 method named
@@ -74,7 +79,7 @@ Defined as:
 
     method named(Parameter:D: --> Bool:D)
 
-Returns C<True> if it's a L<named parameter|/type/Signature#Positional_vs._Named>.
+Returns C<True> if it's a L<named parameter|/type/Signature#Positional_vs._named_arguments>.
 
     my Signature $sig = :(Str $x, Bool :$is-named);
     say $sig.params[0].named;                          # OUTPUT: «False␤»
@@ -87,7 +92,7 @@ Defined as:
     method named_names(Parameter:D: --> List:D)
 
 Returns the list of externally usable names/aliases for a
-L<named parameter|/type/Signature#Positional_vs._Named>.
+L<named parameter|/type/Signature#Positional_vs._named_arguments>.
 
 =head2 method positional
 
@@ -96,7 +101,7 @@ Defined as:
     method positional(Parameter:D: --> Bool:D)
 
 Returns C<True> if the parameter is
-L<positional|/type/Signature#Positional_vs._Named>.
+L<positional|/type/Signature#Positional_vs._named_arguments>.
 
     my Signature $sig = :(Str $x, Bool :$is-named);
     say $sig.params[0].positional;                     # OUTPUT: «True␤»
@@ -109,7 +114,7 @@ Defined as:
     method slurpy(Parameter:D: --> Bool:D)
 
 Returns C<True> for
-L<slurpy parameters|/type/Signature#Slurpy_(A.K.A._Variadic)_Parameters>.
+L<slurpy parameters|/type/Signature#Slurpy_(A.K.A._variadic)_parameters>.
 
 =head2 method twigil
 
@@ -231,7 +236,7 @@ Defined as:
     method invocant(Parameter:D: --> Bool:D)
 
 Returns C<True> if the parameter is the
-L<invocant parameter|/type/Signature#Parameter_Separators>.
+L<invocant parameter|/type/Signature#Parameter_separators>.
 
 =head2 method default
 
@@ -266,7 +271,7 @@ c(4, 5, "six");      # Fails when assigning to $zz, wants Int not Str
 c("four", 5, "six"); # Fails when binding $y, wants Str, not Int
 
 Type captures may be used at the same time as
-L<type constraints|/type/Signature#Type_Constraints>.
+L<type constraints|/type/Signature#Type_constraints>.
 
 =for code
 sub d(::T Numeric $x, T $y) {};
@@ -280,6 +285,85 @@ d("four", "five");  # Fails when binding $x
 If the parameter has a
 L<sub-signature|/type/Signature#Destructuring_Parameters>,
 returns a C<Signature> object for it.  Otherwise returns C<Any>.
+
+=head1 Runtime creation of Parameter objects (6.d, 2019.03 and later)
+
+   Parameter.new( ... )
+
+In some situations, specifically when working with the MetaObject Protocol,
+it makes sense to create C<Parameter> objects programmatically.  For this
+purpose, you can call the C<new> method with the following named parameters:
+
+=item name
+
+Optional.  The name of the variable, if any.  Can be specified in the same
+way as in a C<Signature>.  So it may contain specific additional information,
+such as a sigil (C<$>, C<@>, C<%> or C<&>), a C<:> prefix to indicate a named
+parameter, a twigil (C<.> or C<!>) to indicate public / private attribute
+binding, a postfix C<!> or C<?> to indicate an optional / mandatory parameter,
+and the various combinations of C<+>, C<*>, C<**> prefixes to indicate
+slurpiness types and C<|> to indicate a C<Capture>.
+
+=item type
+
+Optional.  The type of the parameter.  Assumes C<Any> if not specified.
+
+=item default
+
+Optional.  The value of the parameter if the parameter is optional and no
+argument has been given for that parameter.  Assumes not initialization if
+no argument has been given, which would fall back to the (implicit) type
+of the parameter.
+
+=item where
+
+Optional.  Additional constraints to be applied to any argument to match with
+this parameter.  Does not set any additional constraints by default.
+
+=item is-copy
+
+Optional.  Allows one to set the "is copy" flag on the parameter.  Does not
+set the flag by default.
+
+=item is-raw
+
+Optional.  Allows one to set the "is raw" flag on the parameter.  Does not
+set the flag by default.
+
+=item is-rw
+
+Optional.  Allows one to set the "is rw" flag on the parameter.  Does not
+set the flag by default.
+
+=item named
+
+Optional.  Indicates whether the parameter is a named parameter or not.
+Should only be specified if the C<:> prefix is B<not> specified in the name
+and a named parameter is required.
+
+=item optional
+
+Optional.  Indicates whether the parameter is optional or not.  Should only be
+specified if the C<?> postfix is B<not> specified in the name and an optional
+parameter is required.
+
+=item mandatory
+
+Optional.  Indicates whether the parameter is mandatory or not.  Should only be
+specified if the C<!> postfix is B<not> specified in the name and a mandatory
+parameter is required.
+
+=item multi-invocant
+
+Optional.  Indicates whether the parameter should be considered in
+multi-dispatch or not.  Defaults to C<True>, so one would need to do
+C<:!multi-invocant> to make the parameter B<not> be considered in
+multi-dispatch.
+
+=item sub-signature
+
+Optional.  Specifies any C<Signature> that should be applied to the
+parameter to deconstruct it.  By default, no signature is to be applied.
 
 =end pod
 

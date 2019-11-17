@@ -1,20 +1,25 @@
 # Contributing
 
-Your patches to perl6/doc are very welcome.
+Your patches to `perl6/doc` are very welcome, and if you want to
+help,
+[please read this guide](https://dev.to/jj/squashing-perl-6-documentation-bugs-one-at-a-time-4ojn) as
+well as the detailed instructions below.
 
 This document describes how to get started and helps to provide documentation
 that adheres to the common style and formatting guidelines.
 
-Your contributions will be credited in Rakudo release announcement. You name from
-the commit log will be used. If you'd like to be credited under a different name,
-please add it to [CREDITS file](https://github.com/rakudo/rakudo/blob/master/CREDITS)
+Your contributions here will be credited in the next Rakudo release
+announcement. Your name from the commit log will be used. If you'd like to be
+credited under a different name, please add it to the local [CREDITS](CREDITS)
+file (or ask someone to do it for you until you have commit privileges).
 
 If you have any questions regarding contributing to this project, please ask
-in the [#perl6 IRC channel](https://perl6.org/community/irc).
+in the [#raku IRC channel](https://raku.org/community/irc).
 
 # TABLE OF CONTENTS
 - [General principles](#general-principles)
 - [Writing code examples](#writing-code-examples)
+- [Adding a new Language document](#adding-a-new-language-document)
 - [Documenting types](#documenting-types)
 - [Writing and Testing Examples](#writing-and-testing-examples)
 - [Debug mode](#debug-mode)
@@ -35,29 +40,56 @@ in the [#perl6 IRC channel](https://perl6.org/community/irc).
 
 ## General principles
 
-* Please use the present tense, and [active voice](https://en.wikipedia.org/wiki/Active_voice).
+* Please use the present tense unless writing about history or upcoming events or planned features
+* Prefer [active voice](https://en.wikipedia.org/wiki/Active_voice) to the [passive voice](https://en.wikipedia.org/Passive_voice#In_English) with "by": "this is used by crafty programmers" → "crafty programmers use this"
 * Link to external resources (like Wikipedia) for topics that are not
-  directly related to Perl 6 (like the math that our routines implement).
+  directly related to Raku (like the math that our routines implement).
 * Duplicate small pieces of information rather than rely on linking.
-* Be explicit about routine signatures. If a method accepts a `*%args`,
+* Be explicit about routine signatures. If a method accepts an `*%args`,
   but treats some of them specially, list them separately.
 * Check out [the styleguide](writing-docs/STYLEGUIDE.md) for further guidance.
+* If you are participating in one of the monthly squashathons,
+  [please read this guide](writing-docs/SQUASHATHONS.md).
+
+## Documenting versions
+
+* If you are adding a recently introduced feature, please indicate in a note
+  which version it was introduced in.
+* If you change an example to use the new feature, leave the old
+  example if it's still working, at least while it's not obsolete, for people
+  who have not upgraded yet, clarifying in the text around it the versions it
+  will run with.
 
 ## Writing Code Examples
 
 See [EXAMPLES.md](writing-docs/EXAMPLES.md) for detailed information on the options
 available when writing code examples in the documentation.
 
+## Adding a new Language document
+
+We suggest you discuss proposing a new Language document on the #raku
+channel and/or the [issues for this repository](https://github.com/perl6/doc/issues)
+before you proceed further. After you get consensus on a title, subtitle,
+section, and filename, you can add the document by following these steps:
+
++ create a **filename.pod6** file in the **doc/Language** directory and
+  ensure it adheres to the conventions in
+  [CREATING-NEW-DOCS.md](writing-docs/CREATING-NEW-DOCS.md).
+
++ create an entry for your new document in the Language directory's
+  [00-POD6-CONTROL](doc/Language/00-POD6-CONTROL) file following
+  the instructions there.
+
 ## Documenting types
 
-The POD documentation of types is located in the `doc/Type` directory and
-subdirectories of this repository. For example the POD of `X::Bind::Slice`
+The Pod 6 documentation of types is located in the `doc/Type` directory and
+subdirectories of this repository. For example the Pod 6 file of `X::Bind::Slice`
 lives in `doc/Type/X/Bind/Slice.pod6`.
 
-To start contributing fork and checkout the repository, find the document
+To start contributing, fork and checkout the repository, find the document
 you want to improve, commit your changes, and create a pull request. Should
 questions come up in the process feel free to ask in
-[#perl6 IRC channel](https://perl6.org/community/irc).
+[#raku IRC channel](https://raku.org/community/irc).
 
 If the documentation for a type does not exist, create the skeleton of the doc
 with the helper tool `util/new-type.p6`. Say you want to create `MyFunnyRole`:
@@ -66,43 +98,46 @@ with the helper tool `util/new-type.p6`. Say you want to create `MyFunnyRole`:
 
 Fill the documentation file `doc/Type/MyFunnyRole.pod6` like this:
 
-    =TITLE role MyFunnyRole
+```perl6
+=TITLE role MyFunnyRole
 
-    =SUBTITLE Sentence or half-sentence about what it does
+=SUBTITLE Sentence or half-sentence about what it does
 
-        role MyFunnyRole does OtherRole is SuperClass { ... }
+    role MyFunnyRole does OtherRole is SuperClass { ... }
 
-    Longer description here about what this type is, and
-    how you can use it.
+Longer description here about what this type is, and
+how you can use it.
 
-        # usage example goes here
+    # usage example goes here
 
-    =head1 Methods
+=head1 Methods
 
-    =head2 method do-it
+=head2 method do-it
 
-        method do-it(Int $how-often --> Nil:D)
+    method do-it(Int $how-often --> Nil:D)
 
-    Method description here
+Method description here
 
-        MyFunnyRole.do-it(2);   # OUTPUT: «example output␤»
+    MyFunnyRole.do-it(2);   # OUTPUT: «example output␤»
+```
 
-
-When documenting a pair of a sub and a method which both do the same thing, the
+When documenting a pair of a sub and a method with the same functionality, the
 heading should be `=head2 routine do-it`, and the next thing should be two or
 more lines with the signatures. Other allowed words instead of `method` are
 `sub`, `trait`, `infix`, `prefix`, `postfix`, `circumfix`, `postcircumfix`,
-`term`. If you wish to hide a heading from any index prefix it with the empty
+`term`. If you wish to hide a heading from any index, prefix it with the empty
 comment `Z<>`.
 
 When providing a code example result or output, use this style:
 
-    # For the result of an expression.
-    1 + 2;     # RESULT: «3»
-    # For the output.
-    say 1 + 3; # OUTPUT: «3␤»
-    # For the explanatory comment
-    do-work;   # We call do-work sub
+```perl6
+# For the result of an expression.
+1 + 2;     # RESULT: «3»
+# For the output.
+say 1 + 3; # OUTPUT: «3␤»
+# For the explanatory comment
+do-work;   # We call do-work sub
+```
 
 ## Running tests
 
@@ -127,9 +162,9 @@ See [Writing and Testing Examples](writing-docs/EXAMPLES.md)
 ## Testing method completeness
 
 To get a list of methods that are found via introspection but not found in any
-pod6 under `doc/Type/`, use `util/list-missing-methods.p6`. It takes a
+Pod 6 file under `doc/Type/`, use `util/list-missing-methods.p6`. It takes a
 directory or filepath as argument and limits the listing to the given file or
-any pod6-files found. All methods listed in `util/ignored-methods.txt` are
+any Pod 6-files found. All methods listed in `util/ignored-methods.txt` are
 ignored.
 
 ## Debug mode
@@ -152,42 +187,41 @@ checked depending on your browser settings.
 
 ### Heading numbering
 
-Please check if the headings you add are of sound structure. You can use debug mode
+Please check if the headings you add are well structured. You can use [debug mode](#debug-mode)
 to display heading numbers.
 
 ## Reporting bugs
 
-Report issues at https://github.com/perl6/doc/issues. You can use the
-following labels when tagging tickets:
+Report issues at https://github.com/perl6/doc/issues. You can
+use
+[labels when tagging tickets](https://github.com/perl6/doc/labels),
+among which these are probably the most common:
 
-* site   - presentation issue with the website (e.g. invalid HTML)
-* docs   - missing or incorrect documentation (use 'NOTSPECCED' instead, if this is for a feature present in a compiler, but not in the Perl 6 test suite)
-    * new - this is a new doc item that requires fresh text
-    * update - this is an existing doc item that requires some analysis or editing
-* build  - scripts or libraries that generate the site
-* search - the search component, either for items that are on the site but not searchable, or for search functionality)
-
-Contributors may also specify one of the following tags.
-
-* LHF    - as in *low hanging fruit*, for a beginner to work on
-* big    - a big issue, requires research or consensus
+* [`docs`](https://github.com/perl6/doc/labels/docs)   - missing or
+  incorrect documentation;
+  use [`NOTSPECCED`](https://github.com/perl6/doc/labels/NOTSPECCED)
+  instead, if this is for a feature present in a compiler, but not in
+  the Raku test suite.
+* [`search`](https://github.com/perl6/doc/labels/search) - the search
+  component, either for items that are on the site but not searchable,
+  or for the search functionality itself.
 
 If you would like to contribute documentation or other bug fixes, please use
-github's Pull request feature.
+[GitHub's pull requests](https://github.com/perl6/doc/pulls).
 
 ## Building the documentation
 
 Assuming that you have already forked and cloned the
 [perl6/doc](https://github.com/perl6/doc) repository, one of the first things
 you probably want to do is to build the documentation on your local
-computer.  To do this you will need:
+computer. To do this you will need:
 
-  - Perl 6 (e.g., the Rakudo Perl 6 implementation)
-  - zef (the installer for third party Perl 6 modules)
-  - `Pod::To::HTML` (Perl 6 module for converting Pod objects to HTML)
+  - Raku (e.g., the Rakudo Raku implementation)
+  - zef (the installer for third party Raku modules)
+  - `Pod::To::HTML` (Raku module for converting Pod 6 objects to HTML)
   - [graphviz](http://www.graphviz.org/) (`sudo apt-get install graphviz` on Debian/Ubuntu)
   - [Mojolicious](https://metacpan.org/pod/Mojolicious)
-    (optional; a Perl 5 web framework; it allows you to run a web
+    (optional; a Perl 5 web framework; it allows you to run a web
     app locally to display the docs)
   - [SASS](http://sass-lang.com/) Compiler
   - [highlights](https://github.com/perl6/atom-language-perl6) (optional; requires
@@ -201,27 +235,35 @@ computer.  To do this you will need:
 
 #### Rakudo
 
-You need Perl 6 installed. You can install the Rakudo Perl 6 compiler by
+You need Raku installed. You can install the Rakudo Raku compiler by
 downloading the latest Rakudo Star release from
-[rakudo.org/downloads/star/](http://rakudo.org/downloads/star/)
+[rakudo.org/downloads/star/](http://rakudo.org/downloads/star/).
+
+> For best results, you will need to install one of the latest versions, > 2018.11 if possible. It's not guaranteed to work with other versions, and in any case the produced documentation will not look the same.
 
 #### Zef
 
-[Zef](https://modules.perl6.org/repo/zef) is a Perl 6 module installer. If you
-installed Rakudo Star package, it should already be installed. Feel free to
+[Zef](https://modules.raku.org/repo/zef) is a Raku module installer. If you
+installed Rakudo Star package, it should already be there. Feel free to
 use any other module installer for the modules needed (see below).
 
-#### Pod::To::HTML
+#### Building the documentation
 
 The program that builds the HTML version of the documentation
-(`htmlify.p6`) uses `Pod::To::HTML` to convert Pod structures into HTML.
-You'll also need `Pod::To::BigPage`. Install these modules like so:
+(`htmlify.p6`) uses `Pod::To::HTML` to convert Pod 6 structures into HTML.
+You'll also need `Pod::To::BigPage` and `Perl6::TypeGraph`. Install these modules like so:
 
-    $ zef install Pod::To::HTML Pod::To::BigPage
+    $ zef install Pod::To::HTML Pod::To::BigPage Perl6::TypeGraph
+
+although these are included in the `META.json` file so with
+
+    $ zef install --deps-only .
+
+you're good to go.
 
 #### Mojolicious / Web Server
 
-This is a Perl 5 web framework which is used to run the included
+This is a Perl 5 web framework which is used to run the included
 web application that displays the HTML documentation in a web browser. It's
 no required for development, as the site is static and you can serve it using
 any other webserver.
@@ -229,7 +271,7 @@ any other webserver.
 The app *does* automatically convert the SASS file to CSS, so it's handy to
 use for that as well.
 
-Mojolicious is written in Perl 5, so assuming that you use
+Mojolicious is written in Perl 5, so assuming that you use
 [`cpanm`](https://metacpan.org/pod/App::cpanminus),
 install this now:
 
@@ -242,7 +284,7 @@ the `sass` command
 
     $ sudo apt-get install ruby-sass
 
-or the [CSS::Sass Perl 5 module](https://modules.perl6.org/repo/CSS::Sass)
+or the [CSS::Sass Perl 5 module](https://modules.raku.org/repo/CSS::Sass)
 
     $ cpanm -vn CSS::Sass Mojolicious::Plugin::AssetPack
 
@@ -251,31 +293,37 @@ start the development webserver (`./app-start`).
 
 ### Build and view the documentation
 
-To actually build the documentation all you now need to do is run
-`htmlify.p6`:
+The **Makefile** has a lot of targets to help with building and testing the doc website
+and its presented documentation.  Use this command to see them:
 
-    $ perl6 htmlify.p6
+    $ make help
+
+To actually build the documentation all you now need to do is run:
+
+    $ make html
 
 This takes a while, but be patient!
 
 After the build has completed, you can start the web application which will
-render the HTML documentation
+render the HTML documentation on a web server on your build host:
 
-    $ perl app.pl daemon   # note!  Perl 5 *not* Perl 6 here
+    $ make run
 
 Now point your web browser to http://localhost:3000 to view the
 documentation.
 
 #### Using Docker to build and view the documentation
 
-You can skip all the above and just build and view documentation with these simple commands (if you have docker already installed):
+You can skip all the above and just build and view documentation with these
+simple commands (if you have docker already installed):
 
     $ docker build -t perl6-doc .
-    $ docker run -p 3000:3000 -it -v `pwd`:/doc perl6-doc
+    $ docker run -p 3000:3000 -it -v `pwd`:/perl6/doc perl6-doc
 
-This will build the documentation for you by default and it will take some time, but for subsequent use you may want to skip build part if nothing has been changed:
+This will build the documentation for you by default and it will take some time,
+but for subsequent use you may want to skip build part if nothing has been changed:
 
-    $ docker run -p 3000:3000 -it -v `pwd`:/doc perl6-doc bash -c "perl app.pl daemon"
+    $ docker run -p 3000:3000 -it -v `pwd`:/perl6/doc perl6-doc ./app-start
 
 Now point your web browser to http://localhost:3000 to view the documentation.
 
@@ -291,14 +339,14 @@ To run the development web server for viewing documentation (on port 3000):
 
     $ make docker-run
 
-Note that while this requires less typing, some assumptions will be made for you regarding the name
-of the resulting image, the port the content is available over, etc. If you want, you can
-override these default values.
+Note that while this requires less typing, some assumptions will be made for
+you regarding the name of the resulting image, the port the content is available
+over, etc. If you want, you can override these default values.
 
-For instance, if you want the local documentation to be available over port 5001 of the host,
-pass the following to make when running:
+For instance, if you want the local documentation to be available over port 5001
+of the host, pass the following to make when running:
 
     $ make docker-run DOCKER_HOST_PORT=5001
 
-Now the documentation will be available on the host at http://localhost:5001. Please see the
-Makefile for a list of available options.
+Now the documentation will be available on the host at http://localhost:5001.
+Please see the Makefile for a list of available options.

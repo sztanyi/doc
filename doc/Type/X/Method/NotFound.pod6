@@ -1,6 +1,6 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("exception")
 
-=TITLE  X::Method::NotFound
+=TITLE class X::Method::NotFound
 
 =SUBTITLE Error due to calling a method that isn't there
 
@@ -8,9 +8,14 @@
 
 Thrown when the user tries to call a method that isn't there.
 
-For example C<1.no-such> dies with
+For example
 
-=for code :skip-test
+=for code
+1.no-such
+
+throws
+
+=for code :lang<text>
 No such method 'no-such' for invocant of type 'Int'
 
 =head1 Methods
@@ -23,7 +28,7 @@ Returns the method name that was invoked.
 
 =head2 method typename
 
-    method typename returns Str:D
+    method typename(--> Str:D)
 
 Returns the name of the invocant type.
 
@@ -32,5 +37,13 @@ Returns the name of the invocant type.
     method private(--> Bool:D)
 
 Returns C<True> for private methods, and C<False> for public methods.
+
+=head2 method addendum
+
+    method addendum(--> Str:D)
+
+Returns additional explanations or hints.
+
+I<Note>: C<addendum> was introduced in Rakudo 2019.03.
 
 =end pod

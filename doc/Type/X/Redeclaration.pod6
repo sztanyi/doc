@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("exception")
 
 =TITLE class X::Redeclaration
 
@@ -13,31 +13,36 @@ it usually indicates an error and is treated as one.
 
 Examples
 
-=for code :skip-test
+=for code
 my $x; my $x;
 
-will throw
+dies with
 
-=for code :skip-test
+=for code :lang<text>
 ===SORRY!===
 Redeclaration of symbol $x
 
 It works with routines too:
 
-=for code :skip-test
+=for code :skip-test<compile time error>
 sub f() { }
 sub f() { }
+
+dies with
+
+=for code :lang<text>
 ===SORRY!===
 Redeclaration of routine f
 
 But those are fine
 
-    my $x;
-    sub f() {
-        my $x;          # not a redeclaration,
-                        # because it's in an inner scope
-        sub f() { };    # same
-    }
+=for code
+my $x;
+sub f() {
+    my $x;          # not a redeclaration,
+                    # because it's in an inner scope
+    sub f() { };    # same
+}
 
 
 =head1 Methods

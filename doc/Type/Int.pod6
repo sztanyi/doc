@@ -1,10 +1,10 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("basic")
 
 =TITLE class Int
 
 =SUBTITLE Integer (arbitrary-precision)
 
-=for code :skip-test
+=for code :skip-test<Defined in BOOTSTRAP, this definition fails>
 class Int is Cool does Real { }
 
 C<Int> objects store integral numbers of arbitrary size. C<Int>s are immutable.
@@ -81,22 +81,35 @@ can accept non-C<Int> arguments, which will be coerced to C<Int>.
     say expmod(4, 2, 5);    # OUTPUT: «1␤»
     say 7.expmod(2, 5);     # OUTPUT: «4␤»
 
+C<$y> argument can also be negative, in which case, the result is
+equivalent to C<($x ** $y)> mod $mod.
+
+    say 7.expmod(-2, 5);     # OUTPUT: «4␤»
+
+
 =head2 method polymod
 
 Defined as:
 
     method polymod(Int:D: +@mods)
 
-Returns a sequence of mod results corresponding to the divisors in C<@mods>.
-The divisors are given from smallest "unit" to the largest
-(e.g. 60 seconds per minute, 60 minutes per hour) and the results
-are returned in the same way: from smallest to the largest
-(5 seconds, 4 minutes).
+Returns a sequence of mod results corresponding to the divisors in C<@mods> in
+the same order as they appear there. For the best effect,  the divisors should
+be given from the smallest "unit" to the largest (e.g. 60 seconds per minute, 60
+minutes per hour) and the results are returned in the same way: from smallest to
+the largest (5 seconds, 4 minutes). The last non-zero value will be the last
+remainder.
 
-Returns one more item in the result than the number of given divisors.
-If the divisors are given as a lazy list, runs until the remainder is 0 or
-the list of divisors is exhausted. All divisors must be C<Int>s, unless
-the method is called on a non-C<Int> number.
+    say 120.polymod(10);    # OUTPUT: «(0 12)␤»
+    say 120.polymod(10,10); # OUTPUT: «(0 2 1)␤»
+
+In the first case, 120 is divided by 10 giving as a remainder 12, which is the
+last element. In the second, 120 is C<div>ided by 10, giving 12, whose remainder
+once divided by 10 is 2; the result of the integer division of 12 C<div> 10 is
+the last remainder.  The number of remainders will be always one more item than
+the number of given divisors. If the divisors are given as a lazy list, runs
+until the remainder is 0 or the list of divisors is exhausted. All divisors must
+be C<Int>s, unless the method is called on a non-C<Int> number.
 
     my $seconds = 1 * 60*60*24 # days
                 + 3 * 60*60    # hours
@@ -135,7 +148,7 @@ this code that implements it:
     say @pieces; # OUTPUT: «[5 4 3 2]␤»
 
 For a more detailed discussion, see
-L<this blog post|http://perl6.party/post/Perl6-.polymod-break-up-a-number-into-denominations>
+L<this blog post|https://perl6.party/post/Perl6-.polymod-break-up-a-number-into-denominations>
 
 =head2 routine is-prime
 
@@ -159,9 +172,9 @@ Defined as:
     multi method lsb(Int:D:)
     multi sub    lsb(Int:D)
 
-Returns L<Nil|/type/Nil> if the number is 0. Otherwise returns the zero-based
-index from the right of the least significant (rightmost) 1 in the binary
-representation of the number.
+Short for "Least Significant Bit".  Returns L<Nil|/type/Nil> if the number is
+0. Otherwise returns the zero-based index from the right of the least
+significant (rightmost) 1 in the binary representation of the number.
 
     say 0b01011.lsb;        # OUTPUT: «0␤»
     say 0b01010.lsb;        # OUTPUT: «1␤»
@@ -176,9 +189,9 @@ Defined as:
     multi method msb(Int:D:)
     multi sub    msb(Int:D)
 
-Returns L<Nil|/type/Nil> if the number is 0. Otherwise returns the zero-based
-index from the right of the most significant (leftmost) 1 in the binary
-representation of the number.
+Short for "Most Significant Bit".  Returns L<Nil|/type/Nil> if the number is 0.
+Otherwise returns the zero-based index from the right of the most significant
+(leftmost) 1 in the binary representation of the number.
 
     say 0b00001.msb;        # OUTPUT: «0␤»
     say 0b00011.msb;        # OUTPUT: «1␤»
@@ -199,6 +212,10 @@ number, or L<NaN|/type/Num#NaN> if it does not represent a number.
     say ord("¾").unival;    # OUTPUT: «0.75␤»
     say 190.unival;         # OUTPUT: «0.75␤»
     say unival(65);         # OUTPUT: «NaN␤»
+
+=head2 method Range
+
+Returns a L<Range object|/type/Range> that represents the range of values supported.
 
 =head1 Operators
 

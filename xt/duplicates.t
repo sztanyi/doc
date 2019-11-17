@@ -2,7 +2,9 @@
 
 use v6;
 use Test;
+
 use lib 'lib';
+use Pod::Cache;
 use Test-Files;
 
 =begin overview
@@ -15,22 +17,13 @@ Allow a few well known duplicates, like 'long long'
 
 =end overview
 
-my $safe-dupes = Set.new(<method long default>); # Allow these dupes
+my $safe-dupes = Set.new(<method long default that yada,>); # Allow these dupes
 
-my @files = Test-Files.files \
-    .grep({$_.ends-with: '.pod6' or $_.ends-with: '.md'}) \
+my @files = Test-Files.documents \
     .grep({$_ ne "doc/HomePage.pod6"}) \  # mostly HTML
     .grep({$_ ne "doc/404.pod6"});
 
 plan +@files;
-
-my $max-jobs = %*ENV<TEST_THREADS> // 2;
-my %output;
-
-sub test-promise($promise) {
-    my $file = $promise.command[*-1];
-    test-it(%output{$file}, $file);
-}
 
 sub test-it(Str $output, Str $file) {
     my $ok = True;
@@ -47,9 +40,11 @@ sub test-it(Str $output, Str $file) {
         }
         next unless $line.chars;
 
-        my @words = |$last-word, $line.words.grep: *.chars;
+        my @words = flat $last-word, $line.words;
+        @words .= grep(*.chars);
 
-        if $line.ends-with('.') {
+        # End of a sentence resets word check, as do short lines (typically headings)
+        if $line.ends-with('.') or @words.elems <= 2 {
             $last-word = '';
         } elsif @words {
             $last-word = @words[*-1];
@@ -68,24 +63,12 @@ sub test-it(Str $output, Str $file) {
     is @dupes.join("\n"), '', $message;
 }
 
-my @jobs;
 for @files -> $file {
-
-    my $output = '';
-
-    if $file ~~ / '.pod6' $/ {
-        my $a = Proc::Async.new($*EXECUTABLE-NAME, '--doc', $file);
-        %output{$file} = '';
-        $a.stdout.tap(-> $buf { %output{$file} = %output{$file} ~ $buf });
-        push @jobs: $a.start;
-        if +@jobs > $max-jobs {
-            test-promise(await @jobs.shift)
-        }
+    if $file.ends-with('.pod6') {
+        test-it(Pod::Cache.cache-file($file).IO.slurp, $file)
     } else {
         test-it($file.IO.slurp, $file);
     }
 }
-
-for @jobs.map: {await $_} -> $r { test-promise($r) }
 
 # vim: expandtab shiftwidth=4 ft=perl6

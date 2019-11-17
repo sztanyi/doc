@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("exception")
 
 =TITLE class X::Syntax::Comment::Embedded
 
@@ -7,7 +7,7 @@
     class X::Syntax::Comment::Embedded does X::Syntax { }
 
 Syntax error thrown when C<#`> is encountered and it is not followed by
-an opening bracket.
+an opening curly brace.
 
 For example
 
@@ -16,7 +16,7 @@ For example
 
 dies with
 
-=for code :skip-test
+=for code :lang<text>
 ===SORRY!===
 Opening bracket is required for #` comment
 

@@ -2,30 +2,29 @@
 
 use v6;
 use Test;
+
 use lib 'lib';
+use Pod::Cache;
 use Test-Files;
 
 =begin overview
 
-Spell check all the pod files in the documentation directory.
+Spell check all the pod and most markdown files in the documentation directory.
 
 Ignore case, and provide a repo-specific list of approved words,
 which include technical jargon, method and class names, etc.
 
 If the test fails, you can make it pass again by changing the
 text (fixing the spelling issue), or adding the new word to
-xt/words.pws (if it's a word, a class/method name, known
-program name, etc.), or to xt/code.pws (if it's a fragment of
+C<xt/words.pws> (if it's a word, a class/method name, known
+program name, etc.), or to C<xt/code.pws> (if it's a fragment of
 text that is part of a code example)
 
 =end overview
 
-my @files = Test-Files.files\
-    .grep({$_.ends-with: '.pod6' or $_.ends-with: '.md'})\
-    .grep({! $_.ends-with: 'contributors.pod6'});
+my @files = Test-Files.documents.grep({not $_ ~~ / 'README.' .. '.md' /});
 
 plan +@files;
-my $max-jobs = %*ENV<TEST_THREADS> // 2;
 
 my $proc = shell('aspell -v');
 if $proc.exitcode {
@@ -42,11 +41,9 @@ $dict.close;
 
 my %output;
 
-sub test-it($promises) {
-
+sub test-it($promises, $file) {
     await Promise.allof: |$promises;
     my $tasks = $promises».result;
-    my $file = $tasks[0].command[*-1];
 
     my $count;
     for %output{$file}.lines -> $line {
@@ -60,35 +57,16 @@ sub test-it($promises) {
     ok !$count, "$file has $so-many spelling errors";
 }
 
-my @jobs;
-
 for @files -> $file {
-    if $file ~~ / '.pod6' $/ {
-        my $pod = Proc::Async.new($*EXECUTABLE-NAME, '--doc', $file);
-        my $fixer = Proc::Async.new('awk', 'BEGIN {print "!"} {print "^" $0}');
-        $fixer.bind-stdin: $pod.stdout: :bin;
-        my $proc = Proc::Async.new(<aspell -a -l en_US --ignore-case --extra-dicts=./xt/aspell.pws>);
-        $proc.bind-stdin: $fixer.stdout: :bin;
-        %output{$file}="";
-        $proc.stdout.tap(-> $buf { %output{$file} = %output{$file} ~ $buf });
-        $proc.stderr.tap(-> $buf {});
-        push @jobs, [$pod.start, $fixer.start, $proc.start];
-    } else {
-        my $fixer = Proc::Async.new('awk', 'BEGIN {print "!"} {print "^" $0}', $file);
-        my $proc = Proc::Async.new(<aspell -a -l en_US --ignore-case --extra-dicts=./xt/aspell.pws>);
-        $proc.bind-stdin: $fixer.stdout: :bin;
-        %output{$file}="";
-        $proc.stdout.tap(-> $buf { %output{$file} = %output{$file} ~ $buf });
-        $proc.stderr.tap(-> $buf {});
-        push @jobs, [$fixer.start, $proc.start];
-    }
+    my $input-file = $file.ends-with('.pod6') ?? Pod::Cache.cache-file($file) !! $file;
 
-    if +@jobs > $max-jobs {
-        test-it(@jobs.shift);
-    }
+    my $fixer = Proc::Async.new(«perl -pne ｢BEGIN {print "!\n"} s/\S\K\\[tn]/ /g; s/^/^/｣ $input-file»);
+    my $proc = Proc::Async.new(<aspell -a -l en_US --ignore-case --extra-dicts=./xt/aspell.pws --mode=url>);
+    $proc.bind-stdin: $fixer.stdout: :bin;
+    %output{$file}="";
+    $proc.stdout.tap(-> $buf { %output{$file} = %output{$file} ~ $buf });
+    $proc.stderr.tap(-> $buf {});
+    test-it([$fixer.start, $proc.start], $file);
 }
-
-
-@jobs.map({test-it($_)});
 
 # vim: expandtab shiftwidth=4 ft=perl6

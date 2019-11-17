@@ -3,7 +3,7 @@
 use File::Spec::Functions 'catfile';
 use Mojolicious 7.31;
 use Mojolicious::Lite;
-use File::Copy;
+use File::Copy qw/move/;
 use Mojo::File qw/path/;
 use File::Temp qw/tempfile/;
 
@@ -52,10 +52,11 @@ sub gen_assets {
     app->plugin(AssetPack => { pipes => [qw/Sass JavaScript Combine/]});
 
     app->asset->process(
-        'app.css' => qw{
-            /sass/style.scss
-        },
-    );
+                        'app.css' => qw{
+                                         /sass/style.scss
+                                     },
+                       );
+
     app->asset->process(
         'app.js' => qw{
             /js/jquery-3.1.1.min.js
@@ -73,10 +74,13 @@ sub gen_assets {
     Mojo::File->new($temp_js)->spurt(
         join "\n", @{app->asset->processed('app.js')->map(sub {$_->content})}
     );
-    copy $temp_css, 'html/css/app.css'
-        or app->log->warn("Copying CSS failed: $!");
-    copy $temp_js,  'html/js/app.js'
-        or app->log->warn("Copying JS failed: $!");
+    move $temp_css, 'html/css/app.css'
+      or app->log->warn("Copying CSS failed: $!");
+    mkdir "html/js" unless -d "html/js";
+    move $temp_js,  'html/js/app.js'
+      or app->log->warn("Copying JS failed: $!");
+    chmod 0644, 'html/css/app.css', 'html/js/app.js';
+
     app->log->info('...done');
 
 }

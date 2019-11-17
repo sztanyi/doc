@@ -1,6 +1,7 @@
 # Contributing examples to the documentation
 
-Please follow these guidelines if you are illustrating the documentation with some example.
+Please follow these guidelines if you are illustrating the
+documentation with some example.
 
 ## Writing Examples
 
@@ -22,13 +23,13 @@ runtime code is executed, and that a class is available if needed.
 
 ## Skipping or finessing tests
 
-While our goal is to test every example of Perl 6 in the repository, some
+While our goal is to test every example of Raku in the repository, some
 blocks are not easy to test. Here are some ways you can skip the test or
 finesse it.
 
 ### Other languages
 
-We're just testing Perl 6 here: to skip another language, use `:lang`
+We're just testing Raku here: to skip another language, use `:lang`
 
     =begin code :lang<tcl>
         puts "this is not Perl"
@@ -48,7 +49,7 @@ cases that is the explicit point of the test, so you can allow it with ok-test:
 ### Allow dd
 
 `dd` is a rakudo specific routine that isn't part of the specification; examples
-shouldn't use it unless they are explicitly trying to show how dd works.
+shouldn't use it unless they are explicitly trying to show how it works.
 You can allow it with ok-test:
 
     =begin code :ok-test<dd>
@@ -88,12 +89,21 @@ example in the code.
         $x = frob();
     =end code
 
+### Complicated Examples
+
+Some examples are too complicated to be run using our EVAL trick.
+Tag these with `:solo`, and they will be run as a separate standalone
+script. This is slower, so only use it on those examples that require
+it. Anything using `unit` or `export` is a good candidate. Note that
+using this tag means the code is not wrapped as it is for the EVAL path.
+
 ### Failures
 
 Some examples fail with compile time exceptions and would interrupt the test
 for a file. Use the pod-config option `skip-test` to skip them. When possible,
 specify a reason why you have to use this; it should be considered a last
-resort, and many examples might be amenable to using one of the previous annotations.
+resort, and many examples might be amenable to using one of the
+previous annotations.
 
     =begin code :skip-test<compile time error>
         if 1 "missing a block";

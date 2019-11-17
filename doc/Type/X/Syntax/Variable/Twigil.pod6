@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("exception")
 
 =TITLE class X::Syntax::Variable::Twigil
 
@@ -11,12 +11,12 @@ declaration.
 
 For example
 
-=for code :skip-test
+=for code :skip-test<compile time error>
 my $!foo;
 
 dies with
 
-=for code :skip-test
+=for code :lang<text>
 ===SORRY!===
 Cannot use ! twigil on my variable
 

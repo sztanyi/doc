@@ -1,4 +1,4 @@
-=begin pod
+=begin pod :kind("Type") :subkind("class") :category("exception")
 
 =TITLE class X::Syntax::Malformed
 
@@ -6,16 +6,16 @@
 
     class X::Syntax::Malformed does X::Syntax {}
 
-The Perl 6 compiler throws errors of type C<X::Syntax::Malformed> when it
+The Raku compiler throws errors of type C<X::Syntax::Malformed> when it
 knows what kind of declaration it is parsing, and encounters a syntax error,
 but can't give a more specific error message.
 
-=for code :skip-test
+=for code :skip-test<compile time error>
 my Int a;   # throws an X::Syntax::Malformed
 
 produces
 
-=for code :skip-test
+=for code :lang<text>
 ===SORRY!===
 Malformed my
 at -e:1

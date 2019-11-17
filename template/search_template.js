@@ -1,3 +1,4 @@
+//WARNING
 var current_search = "";
 
 $(function(){
@@ -60,7 +61,15 @@ $(function(){
 
         return 0;
       }
-      $.each( items.sort(sortBy), function( index, item ) {
+      var sortedItems = items.sort(sortBy);
+      var keywords = $("#query").val();
+      sortedItems.push({
+          category: 'Site Search',
+          label: "Search the entire site for " + keywords,
+          value: keywords,
+          url: siteSearchUrl( keywords )
+      });
+      $.each( sortedItems, function( index, item ) {
         var li;
         if ( item.category != currentCategory ) {
           ul.append( "<li class='ui-autocomplete-category'>" + item.category + "</li>" );
@@ -78,8 +87,7 @@ $(function(){
         if ( ! ui.content.length ) {
             $('#search').addClass('not-found')
                 .find('#try-web-search').attr(
-                    'href', 'https://www.google.com/search?q=site%3Adocs.perl6.org+'
-                    + encodeURIComponent( $("#query").val() )
+                    'href', siteSearchUrl( $("#query").val() )
                 );
         }
         else {
@@ -168,7 +176,7 @@ $.extend( $.ui.autocomplete, {
         current_search = term.toLowerCase();
 
         var search_method = false;
-        if (term.startsWith(".")) {
+        if (term.match(/^\s*\.[a-zA-Z][a-zA-Z0-9_-]+\s*$/)) {
             search_method = true;
             term = term.substr(1);
         }
@@ -192,6 +200,10 @@ $.extend( $.ui.autocomplete, {
         } );
     }
 } );
+
+function siteSearchUrl( keywords ) {
+    return 'https://www.google.com/search?q=site%3Adocs.perl6.org+' + encodeURIComponent( keywords );
+}
 
 /*
  * Courtesy https://siderite.blogspot.com/2014/11/super-fast-and-accurate-string-distance.html

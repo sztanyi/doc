@@ -26,3 +26,10 @@ highlights/node_modules
 highlights/atom-language-perl6/
 .DS_store
 highlights/package-lock.json
+.pod-cache
+retest
+build/
+node_modules/
+package-lock.json
+*.epub
+.idea

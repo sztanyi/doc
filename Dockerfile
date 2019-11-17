@@ -1,36 +1,35 @@
-FROM rakudo-star:latest
+FROM jjmerelo/rakudo-nostar:latest
 
-RUN buildDeps=' \
+RUN buildDeps='         \
         build-essential \
-        cpanminus \
-        npm \
-    ' \
+        cpanminus       \
+    '                   \
     runtimeDeps=' \
-        graphviz \
-        make \
-        nodejs \
+        graphviz  \
+        make      \
         ruby-sass \
-    ' \
+    '             \
     testDeps=' \
         aspell \
     ' \
-
+      \
     && set -x \
     && apt-get update \
     && apt-get --yes --no-install-recommends install $buildDeps $runtimeDeps $testDeps \
     && rm -rf /var/lib/apt/lists/* \
+                                   \
+    && cpanm -vn Mojolicious  \
+    && n=/usr/local/bin/n \
+    && curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n > "$n" \
+    && chmod +x "$n"      \
+    && n stable
 
-    && cpanm -vn Mojolicious \
-    && zef install Test::META \
+WORKDIR /perl6/doc
+COPY . .
+RUN zef install zef && zef update && zef install --deps-only .
 
-    && ln -s /usr/bin/nodejs /usr/bin/node \
-    && npm cache clean -f \
-    && npm install -g n \
-    && n stable \
+RUN make test && make html
 
-    && apt-get purge --yes --auto-remove $buildDeps
+EXPOSE 3000
 
-WORKDIR /perl6/doc/
-EXPOSE  3000
-
-CMD bash -c 'make test && make html && ./app-start'
+CMD ["morbo", "-w", "assets/sass", "-w", "assets/js", "-w", "html/js/search.js", "-l", "http://0.0.0.0:3000", "app.pl"]
